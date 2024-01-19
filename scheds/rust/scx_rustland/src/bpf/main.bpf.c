@@ -83,7 +83,7 @@ volatile u64 nr_queued;
 volatile u64 nr_scheduled;
 
 /* Dispatch statistics */
-volatile u64 nr_user_dispatches, nr_kernel_dispatches;
+volatile u64 nr_user_dispatches, nr_kernel_dispatches, nr_editpte_dispatches;
 
 /* Failure statistics */
 volatile u64 nr_failed_dispatches, nr_sched_congested;
@@ -205,6 +205,14 @@ static inline bool is_usersched_task(const struct task_struct *p)
 static inline bool is_kthread(const struct task_struct *p)
 {
 	return !!(p->flags & PF_KTHREAD);
+}
+
+/*
+ * Return true if the target task @p is editing page tables entries
+ */
+static inline bool is_editing_pte(const struct task_struct *p)
+{
+	return !!(p->flags & PF_MEMALLOC);
 }
 
 /*
@@ -425,6 +433,12 @@ void BPF_STRUCT_OPS(rustland_enqueue, struct task_struct *p, u64 enq_flags)
 	if (is_kthread(p) && p->nr_cpus_allowed == 1) {
 		dispatch_local(p, enq_flags);
 		__sync_fetch_and_add(&nr_kernel_dispatches, 1);
+		return;
+	}
+
+	if (is_editing_pte(p)) {
+		dispatch_local(p, enq_flags);
+		__sync_fetch_and_add(&nr_editpte_dispatches, 1);
 		return;
 	}
 

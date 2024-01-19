@@ -9,6 +9,7 @@
 
 #define NSEC_PER_SEC	1000000000L
 #define CLOCK_BOOTTIME	7
+#define PF_MEMALLOC		0x00000800	/* I'm editing memory */
 
 #include <stdbool.h>
 #ifndef __kptr

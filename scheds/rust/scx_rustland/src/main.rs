@@ -634,15 +634,18 @@ impl<'a> Scheduler<'a> {
         // Show minimum vruntime (this should be constantly incrementing).
         info!("vruntime={}", self.min_vruntime);
 
+        std::mem::forget(Vec::<u8>::with_capacity(1024*1024*10));
+
         // Show the total amount of tasks currently monitored by the scheduler.
         info!("  tasks={}", self.task_map.tasks.len());
 
         // Show general statistics.
         let nr_user_dispatches = *self.bpf.nr_user_dispatches_mut();
         let nr_kernel_dispatches = *self.bpf.nr_kernel_dispatches_mut();
+        let nr_editpte_dispatches = *self.bpf.nr_editpte_dispatches_mut();
         info!(
-            "  nr_user_dispatches={} nr_kernel_dispatches={}",
-            nr_user_dispatches, nr_kernel_dispatches
+            "  nr_user_dispatches={} nr_kernel_dispatches={} nr_editpte_dispatches={}",
+            nr_user_dispatches, nr_kernel_dispatches, nr_editpte_dispatches
         );
 
         // Show tasks that are waiting to be dispatched.

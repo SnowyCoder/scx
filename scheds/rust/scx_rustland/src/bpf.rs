@@ -132,8 +132,8 @@ const SCHED_EXT: i32 = 7;
 // designed to operate on a pre-allocated buffer. This, coupled with the memory locking achieved
 // through mlockall(), prevents page faults from occurring during the execution of the user-space
 // scheduler.
-#[global_allocator]
-static ALLOCATOR: RustLandAllocator = RustLandAllocator;
+//#[global_allocator]
+//static ALLOCATOR: RustLandAllocator = RustLandAllocator;
 
 // Task queued for scheduling from the BPF component (see bpf_intf::queued_task_ctx).
 #[derive(Debug)]
@@ -219,7 +219,7 @@ impl<'a> BpfScheduler<'a> {
 
         // Lock all the memory to prevent page faults that could trigger potential deadlocks during
         // scheduling.
-        ALLOCATOR.lock_memory();
+        //ALLOCATOR.lock_memory();
 
         // Initialize online CPUs counter.
         //
@@ -292,6 +292,13 @@ impl<'a> BpfScheduler<'a> {
     pub fn nr_kernel_dispatches_mut(&mut self) -> &mut u64 {
         &mut self.skel.bss_mut().nr_kernel_dispatches
     }
+
+    // Counter of user dispatch events.
+    #[allow(dead_code)]
+    pub fn nr_editpte_dispatches_mut(&mut self) -> &mut u64 {
+        &mut self.skel.bss_mut().nr_editpte_dispatches
+    }
+
 
     // Counter of failed dispatch events.
     #[allow(dead_code)]
