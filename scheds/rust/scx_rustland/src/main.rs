@@ -706,6 +706,38 @@ impl<'a> Drop for Scheduler<'a> {
     }
 }
 
+/*fn setup_cgroup(name: &str) -> Result<()> {
+    let root_path = Path::new("/sys/fs/cgroup");
+
+    // Ensure that the memory controller is enabled
+    fs::write(root_path.join("cgroup.subtree_control"), b"+memory")?;
+
+    // Create our cgroup
+    let cg_path = root_path.join(name);
+
+    let res = fs::create_dir(&cg_path);
+    match res {
+        Ok(()) => {},
+        Err(e) if e.kind() == io::ErrorKind::AlreadyExists => {
+            info!("CGroup already exists")
+        },
+        Err(e) => return Err(e.into())
+    };
+
+    // Enable memory.oom_kill_disable
+    fs::write(cg_path.join("memory.oom_kill_disable"), b"1")?;
+
+
+    // Transfer process to cgroups
+    fs::write(cg_path.join("cgroup.procs"), format!("{}", process::id()))?;
+
+    info!("CG: {}", fs::read_to_string("/proc/self/cgroup")?);
+    info!("oom_kill_disable: {}", fs::read_to_string(cg_path.join("memory.oom_kill_disable"))?);
+    Ok(())
+}*/
+
+
+
 fn main() -> Result<()> {
     let opts = Opts::parse();
 
@@ -722,6 +754,8 @@ fn main() -> Result<()> {
         simplelog::TerminalMode::Stderr,
         simplelog::ColorChoice::Auto,
     )?;
+
+    //setup_cgroup(&opts.cgroup_name)?;
 
     let mut sched = Scheduler::init(&opts)?;
     let shutdown = Arc::new(AtomicBool::new(false));

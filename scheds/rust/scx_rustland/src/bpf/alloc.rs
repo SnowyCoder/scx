@@ -125,7 +125,7 @@ impl RustLandAllocator {
 
     pub fn lock_memory(&self) {
         unsafe {
-            VM.save();
+            //VM.save();
 
             // Call setrlimit to set the locked-in-memory limit to unlimited.
             let new_rlimit = libc::rlimit {
@@ -147,7 +147,7 @@ impl RustLandAllocator {
 
     pub fn unlock_memory(&self) {
         unsafe {
-            VM.restore();
+            //VM.restore();
         };
     }
 }
